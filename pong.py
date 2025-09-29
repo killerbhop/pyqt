@@ -39,7 +39,7 @@ class PongGame(QWidget):
             Qt.Key.Key_W: False,
             Qt.Key.Key_S: False,
             Qt.Key.Key_Up: False,
-            Qt.Key.Key_Down: False
+            Qt.Key.Key_Down: False,
         }
 
         # Таймер для обновления игры
@@ -89,17 +89,19 @@ class PongGame(QWidget):
             return
 
         # Движение ракеток
-        if (self.keys_pressed[Qt.Key.Key_W] and
-                self.player1_y > 0):
+        if self.keys_pressed[Qt.Key.Key_W] and self.player1_y > 0:
             self.player1_y -= self.paddle_speed
-        if (self.keys_pressed[Qt.Key.Key_S] and
-                self.player1_y < self.height() - self.paddle_height):
+        if (
+            self.keys_pressed[Qt.Key.Key_S]
+            and self.player1_y < self.height() - self.paddle_height
+        ):
             self.player1_y += self.paddle_speed
-        if (self.keys_pressed[Qt.Key.Key_Up] and
-                self.player2_y > 0):
+        if self.keys_pressed[Qt.Key.Key_Up] and self.player2_y > 0:
             self.player2_y -= self.paddle_speed
-        if (self.keys_pressed[Qt.Key.Key_Down] and
-                self.player2_y < self.height() - self.paddle_height):
+        if (
+            self.keys_pressed[Qt.Key.Key_Down]
+            and self.player2_y < self.height() - self.paddle_height
+        ):
             self.player2_y += self.paddle_speed
 
         # Движение мяча
@@ -118,7 +120,7 @@ class PongGame(QWidget):
             self.width() - 20 - self.paddle_width,
             self.player2_y,
             self.paddle_width,
-            self.paddle_height
+            self.paddle_height,
         )
         ball_rect = QRectF(
             self.ball_x, self.ball_y, self.ball_size, self.ball_size
@@ -130,8 +132,12 @@ class PongGame(QWidget):
             self.ball_speed_x = min(
                 self.ball_speed_x * 1.1, self.max_ball_speed
             )
-            speed_y_abs = min(abs(self.ball_speed_y * 1.1), self.max_ball_speed)
-            self.ball_speed_y = speed_y_abs * (1 if self.ball_speed_y > 0 else -1)
+            speed_y_abs = min(
+                abs(self.ball_speed_y * 1.1), self.max_ball_speed
+            )
+            self.ball_speed_y = speed_y_abs * (
+                1 if self.ball_speed_y > 0 else -1
+            )
 
         if ball_rect.intersects(paddle2_rect) and self.ball_speed_x > 0:
             self.ball_speed_x = -self.ball_speed_x
@@ -139,8 +145,12 @@ class PongGame(QWidget):
             self.ball_speed_x = max(
                 self.ball_speed_x * 1.1, -self.max_ball_speed
             )
-            speed_y_abs = min(abs(self.ball_speed_y * 1.1), self.max_ball_speed)
-            self.ball_speed_y = speed_y_abs * (1 if self.ball_speed_y > 0 else -1)
+            speed_y_abs = min(
+                abs(self.ball_speed_y * 1.1), self.max_ball_speed
+            )
+            self.ball_speed_y = speed_y_abs * (
+                1 if self.ball_speed_y > 0 else -1
+            )
 
         # Забитие гола
         if self.ball_x < 0:
@@ -189,20 +199,25 @@ class PongGame(QWidget):
 
         # Рисуем ракетки и мяч
         painter.fillRect(
-            20, int(self.player1_y),
-            self.paddle_width, self.paddle_height,
-            QColor(255, 255, 255)
+            20,
+            int(self.player1_y),
+            self.paddle_width,
+            self.paddle_height,
+            QColor(255, 255, 255),
         )
         painter.fillRect(
             self.width() - 20 - self.paddle_width,
             int(self.player2_y),
-            self.paddle_width, self.paddle_height,
-            QColor(255, 255, 255)
+            self.paddle_width,
+            self.paddle_height,
+            QColor(255, 255, 255),
         )
         painter.fillRect(
-            int(self.ball_x), int(self.ball_y),
-            self.ball_size, self.ball_size,
-            QColor(255, 255, 255)
+            int(self.ball_x),
+            int(self.ball_y),
+            self.ball_size,
+            self.ball_size,
+            QColor(255, 255, 255),
         )
 
         # Рисуем счет
@@ -217,12 +232,12 @@ class PongGame(QWidget):
             painter.drawText(
                 int(self.width() / 2 - 100),
                 int(self.height() / 2),
-                f"{winner} победил!"
+                f"{winner} победил!",
             )
             painter.drawText(
                 int(self.width() / 2 - 150),
                 int(self.height() / 2 + 40),
-                "Нажмите R для рестарта"
+                "Нажмите R для рестарта",
             )
 
 

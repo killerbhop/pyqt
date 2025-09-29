@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Database:
-    def __init__(self, db_name='users.db'):
+    def __init__(self, db_name="users.db"):
         self.db_name = db_name
         self.init_db()
 
@@ -12,7 +12,8 @@ class Database:
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -22,7 +23,8 @@ class Database:
                 login_attempts INTEGER DEFAULT 0,
                 last_attempt TEXT
             )
-        ''')
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -40,10 +42,13 @@ class Database:
             hashed_password = self.hash_password(password)
             created_at = datetime.now().isoformat()
 
-            cursor.execute('''
+            cursor.execute(
+                """
                 INSERT INTO users (name, email, password, created_at)
                 VALUES (?, ?, ?, ?)
-            ''', (name, email, hashed_password, created_at))
+            """,
+                (name, email, hashed_password, created_at),
+            )
 
             conn.commit()
             conn.close()
@@ -63,10 +68,13 @@ class Database:
 
             hashed_password = self.hash_password(password)
 
-            cursor.execute('''
+            cursor.execute(
+                """
                 SELECT id, name, login_attempts FROM users
                 WHERE email = ? AND password = ?
-            ''', (email, hashed_password))
+            """,
+                (email, hashed_password),
+            )
 
             user = cursor.fetchone()
             conn.close()
@@ -82,7 +90,7 @@ class Database:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
 
-            cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
+            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
             user = cursor.fetchone()
             conn.close()
 
@@ -99,17 +107,23 @@ class Database:
 
             if success:
                 # Сброс счетчика при успешном входе
-                cursor.execute('''
+                cursor.execute(
+                    """
                     UPDATE users SET login_attempts = 0, last_attempt = ?
                     WHERE email = ?
-                ''', (datetime.now().isoformat(), email))
+                """,
+                    (datetime.now().isoformat(), email),
+                )
             else:
                 # Увеличение счетчика при неудачной попытке
-                cursor.execute('''
+                cursor.execute(
+                    """
                     UPDATE users
                     SET login_attempts = login_attempts + 1, last_attempt = ?
                     WHERE email = ?
-                ''', (datetime.now().isoformat(), email))
+                """,
+                    (datetime.now().isoformat(), email),
+                )
 
             conn.commit()
             conn.close()
@@ -125,7 +139,7 @@ class Database:
             cursor = conn.cursor()
 
             cursor.execute(
-                'SELECT login_attempts FROM users WHERE email = ?', (email,)
+                "SELECT login_attempts FROM users WHERE email = ?", (email,)
             )
             result = cursor.fetchone()
             conn.close()

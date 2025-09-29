@@ -1,8 +1,16 @@
 import sys
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QTabWidget, QVBoxLayout, QLabel,
-    QLineEdit, QPushButton, QFormLayout, QMessageBox, QGridLayout,
-    QHBoxLayout
+    QApplication,
+    QWidget,
+    QTabWidget,
+    QVBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QFormLayout,
+    QMessageBox,
+    QGridLayout,
+    QHBoxLayout,
 )
 from PyQt6.QtCore import Qt, QMimeData
 from PyQt6.QtGui import QPixmap, QDrag
@@ -54,7 +62,7 @@ class CaptchaWidget(QWidget):
         self.initUI(image_paths)
 
     def initUI(self, image_paths):
-        self.setWindowTitle('Проверка капчи')
+        self.setWindowTitle("Проверка капчи")
         self.setFixedSize(700, 500)
 
         main_layout = QVBoxLayout(self)
@@ -62,7 +70,9 @@ class CaptchaWidget(QWidget):
 
         title_label = QLabel("Соберите картинку правильно:")
         title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
-        main_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(
+            title_label, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         container_widget = QWidget()
         container_layout = QVBoxLayout(container_widget)
@@ -77,7 +87,6 @@ class CaptchaWidget(QWidget):
         self.source_layout = QGridLayout(self.source_widget)
         self.source_layout.setSpacing(10)
 
-        # Исправление строки 65 - разбиваем вычисление размера
         target_size = self.max_piece_size * 2 + 10
         self.target_widget = QWidget()
         self.target_widget.setFixedSize(target_size, target_size)
@@ -96,7 +105,7 @@ class CaptchaWidget(QWidget):
                     self.max_piece_size,
                     self.max_piece_size,
                     Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
+                    Qt.TransformationMode.SmoothTransformation,
                 )
 
             piece = PuzzlePiece(pixmap, i, self)
@@ -155,12 +164,16 @@ class CaptchaWidget(QWidget):
 
             if target_label.pixmap() and not target_label.pixmap().isNull():
                 for piece in self.pieces:
-                    if (piece.pixmap().toImage() ==
-                            target_label.pixmap().toImage()):
+                    if (
+                        piece.pixmap().toImage()
+                        == target_label.pixmap().toImage()
+                    ):
                         piece.show()
                         self.source_layout.addWidget(
-                            piece, self.source_layout.count(), 0,
-                            alignment=Qt.AlignmentFlag.AlignCenter
+                            piece,
+                            self.source_layout.count(),
+                            0,
+                            alignment=Qt.AlignmentFlag.AlignCenter,
                         )
                         break
 
@@ -187,17 +200,16 @@ class CaptchaWidget(QWidget):
                     current_order.append(piece.correct_position)
                     break
 
-        self.is_completed = (current_order == self.correct_positions)
+        self.is_completed = current_order == self.correct_positions
 
         if self.is_completed:
             QMessageBox.information(self, "Успех", "Капча пройдена успешно!")
             self.close()
-            if hasattr(self, 'on_success'):
+            if hasattr(self, "on_success"):
                 self.on_success()
         else:
             QMessageBox.warning(
-                self, "Ошибка",
-                "Капча решена неправильно! Попробуйте еще раз."
+                self, "Ошибка", "Капча решена неправильно! Попробуйте еще раз."
             )
             self.reset_puzzle()
 
@@ -354,9 +366,10 @@ class AuthWindow(QWidget):
 
         if login_attempts >= self.max_attempts:
             QMessageBox.warning(
-                self, "Превышено количество попыток",
+                self,
+                "Превышено количество попыток",
                 "Вы превысили количество попыток входа."
-                " Требуется проверка капчи."
+                " Требуется проверка капчи.",
             )
             self.current_email = email
             self.show_captcha()
@@ -376,20 +389,22 @@ class AuthWindow(QWidget):
 
             if remaining_attempts > 0:
                 QMessageBox.warning(
-                    self, "Ошибка входа",
-                    f"Неверный пароль. Осталось попыток: {remaining_attempts}"
+                    self,
+                    "Ошибка входа",
+                    f"Неверный пароль. Осталось попыток: {remaining_attempts}",
                 )
             else:
                 QMessageBox.warning(
-                    self, "Превышено количество попыток",
+                    self,
+                    "Превышено количество попыток",
                     "Вы превысили количество попыток входа."
-                    " Требуется проверка капчи."
+                    " Требуется проверка капчи.",
                 )
                 self.current_email = email
                 self.show_captcha()
 
     def show_captcha(self):
-        image_paths = ['1.png', '2.png', '3.png', '4.png']
+        image_paths = ["1.png", "2.png", "3.png", "4.png"]
         self.captcha_window = CaptchaWidget(image_paths)
         self.captcha_window.on_success = self.on_captcha_success
         self.captcha_window.show()
@@ -398,8 +413,9 @@ class AuthWindow(QWidget):
         if self.current_email:
             self.db.update_login_attempts(self.current_email, True)
             QMessageBox.information(
-                self, "Доступ восстановлен",
-                "Капча пройдена успешно! Вы можете продолжить попытки входа."
+                self,
+                "Доступ восстановлен",
+                "Капча пройдена успешно! Вы можете продолжить попытки входа.",
             )
             self.current_email = None
 
@@ -435,12 +451,11 @@ class AuthWindow(QWidget):
             self.open_game_selection()
         else:
             QMessageBox.warning(
-                self, "Ошибка",
-                "Пользователь с таким email уже существует!"
+                self, "Ошибка", "Пользователь с таким email уже существует!"
             )
 
     def is_valid_email(self, email):
-        return '@' in email and '.' in email and len(email) > 5
+        return "@" in email and "." in email and len(email) > 5
 
     def open_game_selection(self):
         self.hide()
@@ -453,4 +468,3 @@ if __name__ == "__main__":
     window = AuthWindow()
     window.show()
     sys.exit(app.exec())
-C:\Users\top20\pyqt\main.py
