@@ -100,7 +100,6 @@ class Database:
             return False
 
     def update_login_attempts(self, email, success):
-        """Обновление счетчика попыток входа"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()

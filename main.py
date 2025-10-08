@@ -162,12 +162,10 @@ class CaptchaWidget(QWidget):
         if isinstance(source, PuzzlePiece):
             target_label = self.target_labels[target_index]
 
+            # Если в целевой ячейке уже есть кусочек, возвращаем его в источник
             if target_label.pixmap() and not target_label.pixmap().isNull():
                 for piece in self.pieces:
-                    if (
-                        piece.pixmap().toImage()
-                        == target_label.pixmap().toImage()
-                    ):
+                    if piece.pixmap().toImage() == target_label.pixmap().toImage():
                         piece.show()
                         self.source_layout.addWidget(
                             piece,
@@ -204,9 +202,9 @@ class CaptchaWidget(QWidget):
 
         if self.is_completed:
             QMessageBox.information(self, "Успех", "Капча пройдена успешно!")
-            self.close()
             if hasattr(self, "on_success"):
                 self.on_success()
+            self.close()
         else:
             QMessageBox.warning(
                 self, "Ошибка", "Капча решена неправильно! Попробуйте еще раз."
@@ -223,8 +221,11 @@ class CaptchaWidget(QWidget):
         for piece in self.pieces:
             piece.show()
 
+        # Очищаем source_layout и добавляем перемешанные кусочки
         for i in reversed(range(self.source_layout.count())):
-            self.source_layout.itemAt(i).widget().setParent(None)
+            widget = self.source_layout.itemAt(i).widget()
+            if widget:
+                widget.setParent(None)
 
         random.shuffle(self.pieces)
         for i, piece in enumerate(self.pieces):
@@ -364,21 +365,16 @@ class AuthWindow(QWidget):
 
         login_attempts = self.db.get_login_attempts(email)
 
+        # Если превышено количество попыток или это третья неудачная попытка
         if login_attempts >= self.max_attempts:
-            QMessageBox.warning(
-                self,
-                "Превышено количество попыток",
-                "Вы превысили количество попыток входа."
-                " Требуется проверка капчи.",
-            )
             self.current_email = email
-            self.show_captcha()
+            self.show_captcha_for_login()
             return
 
         user = self.db.check_user(email, password)
 
         if user:
-            self.db.update_login_attempts(email, True)
+            self.db.update_login_attempts(email, True)  # Сброс попыток
             QMessageBox.information(
                 self, "Успех", f"Вход выполнен успешно, {user[1]}!"
             )
@@ -394,22 +390,19 @@ class AuthWindow(QWidget):
                     f"Неверный пароль. Осталось попыток: {remaining_attempts}",
                 )
             else:
-                QMessageBox.warning(
-                    self,
-                    "Превышено количество попыток",
-                    "Вы превысили количество попыток входа."
-                    " Требуется проверка капчи.",
-                )
+                # Это третья неудачная попытка - показываем капчу
                 self.current_email = email
-                self.show_captcha()
+                self.show_captcha_for_login()
 
-    def show_captcha(self):
+    def show_captcha_for_login(self):
+        """Показать капчу для входа после 3 неудачных попыток"""
         image_paths = ["1.png", "2.png", "3.png", "4.png"]
         self.captcha_window = CaptchaWidget(image_paths)
-        self.captcha_window.on_success = self.on_captcha_success
+        self.captcha_window.on_success = self.on_login_captcha_success
         self.captcha_window.show()
 
-    def on_captcha_success(self):
+    def on_login_captcha_success(self):
+        """Действие после успешного прохождения капчи при входе"""
         if self.current_email:
             self.db.update_login_attempts(self.current_email, True)
             QMessageBox.information(
@@ -420,6 +413,7 @@ class AuthWindow(QWidget):
             self.current_email = None
 
     def handle_register(self):
+        """Обработка регистрации с обязательной капчей"""
         name = self.reg_name.text().strip()
         email = self.reg_email.text().strip()
         password = self.reg_password.text().strip()
@@ -440,6 +434,18 @@ class AuthWindow(QWidget):
             )
             return
 
+        # Показываем капчу перед регистрацией
+        self.show_captcha_for_registration(name, email, password)
+
+    def show_captcha_for_registration(self, name, email, password):
+        """Показать капчу для регистрации"""
+        image_paths = ["1.png", "2.png", "3.png", "4.png"]
+        self.captcha_window = CaptchaWidget(image_paths)
+        self.captcha_window.on_success = lambda: self.finalize_registration(name, email, password)
+        self.captcha_window.show()
+
+    def finalize_registration(self, name, email, password):
+        """Завершение регистрации после успешной капчи"""
         if self.db.register_user(name, email, password):
             QMessageBox.information(
                 self, "Успех", "Регистрация выполнена успешно!"
