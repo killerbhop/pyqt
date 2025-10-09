@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
     QTabWidget,
@@ -12,8 +12,8 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
 )
-from PyQt6.QtCore import Qt, QMimeData
-from PyQt6.QtGui import QPixmap, QDrag
+from PyQt5.QtCore import Qt, QMimeData
+from PyQt5.QtGui import QPixmap, QDrag
 from pong import PongGame
 import random
 from database import Database
@@ -28,13 +28,13 @@ class PuzzlePiece(QLabel):
         self.setAcceptDrops(True)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
+        if event.button() == Qt.LeftButton:
             drag = QDrag(self)
             mime_data = QMimeData()
             drag.setMimeData(mime_data)
             drag.setPixmap(self.pixmap())
-            drag.setHotSpot(event.position().toPoint())
-            drag.exec(Qt.DropAction.MoveAction)
+            drag.setHotSpot(event.pos())
+            drag.exec(Qt.MoveAction)
 
     def dragEnterEvent(self, event):
         event.acceptProposedAction()
@@ -66,17 +66,15 @@ class CaptchaWidget(QWidget):
         self.setFixedSize(700, 500)
 
         main_layout = QVBoxLayout(self)
-        main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.setAlignment(Qt.AlignCenter)
 
         title_label = QLabel("Соберите картинку правильно:")
         title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
-        main_layout.addWidget(
-            title_label, alignment=Qt.AlignmentFlag.AlignCenter
-        )
+        main_layout.addWidget(title_label, alignment=Qt.AlignCenter)
 
         container_widget = QWidget()
         container_layout = QVBoxLayout(container_widget)
-        container_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        container_layout.setAlignment(Qt.AlignCenter)
         container_layout.setSpacing(15)
 
         horizontal_container = QWidget()
@@ -99,13 +97,13 @@ class CaptchaWidget(QWidget):
             if pixmap.isNull():
                 print(f"Ошибка загрузки: {path}")
                 pixmap = QPixmap(self.max_piece_size, self.max_piece_size)
-                pixmap.fill(Qt.GlobalColor.gray)
+                pixmap.fill(Qt.gray)
             else:
                 pixmap = pixmap.scaled(
                     self.max_piece_size,
                     self.max_piece_size,
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation,
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation,
                 )
 
             piece = PuzzlePiece(pixmap, i, self)
@@ -114,9 +112,7 @@ class CaptchaWidget(QWidget):
 
         random.shuffle(self.pieces)
         for i, piece in enumerate(self.pieces):
-            self.source_layout.addWidget(
-                piece, i, 0, alignment=Qt.AlignmentFlag.AlignCenter
-            )
+            self.source_layout.addWidget(piece, i, 0, alignment=Qt.AlignCenter)
 
         self.target_labels = []
         for i in range(4):
@@ -135,7 +131,7 @@ class CaptchaWidget(QWidget):
             self.target_labels.append(placeholder)
             row, col = i // 2, i % 2
             self.target_layout.addWidget(
-                placeholder, row, col, alignment=Qt.AlignmentFlag.AlignCenter
+                placeholder, row, col, alignment=Qt.AlignCenter
             )
 
         horizontal_layout.addWidget(self.source_widget)
@@ -151,9 +147,7 @@ class CaptchaWidget(QWidget):
         buttons_layout.addWidget(self.reset_button)
 
         container_layout.addWidget(horizontal_container)
-        container_layout.addWidget(
-            buttons_widget, alignment=Qt.AlignmentFlag.AlignCenter
-        )
+        container_layout.addWidget(buttons_widget, alignment=Qt.AlignCenter)
 
         main_layout.addWidget(container_widget)
 
@@ -173,7 +167,7 @@ class CaptchaWidget(QWidget):
                             piece,
                             self.source_layout.count(),
                             0,
-                            alignment=Qt.AlignmentFlag.AlignCenter,
+                            alignment=Qt.AlignCenter,
                         )
                         break
 
@@ -223,7 +217,6 @@ class CaptchaWidget(QWidget):
         for piece in self.pieces:
             piece.show()
 
-        # Очищаем source_layout и добавляем перемешанные кусочки
         for i in reversed(range(self.source_layout.count())):
             widget = self.source_layout.itemAt(i).widget()
             if widget:
@@ -231,9 +224,7 @@ class CaptchaWidget(QWidget):
 
         random.shuffle(self.pieces)
         for i, piece in enumerate(self.pieces):
-            self.source_layout.addWidget(
-                piece, i, 0, alignment=Qt.AlignmentFlag.AlignCenter
-            )
+            self.source_layout.addWidget(piece, i, 0, alignment=Qt.AlignCenter)
 
         self.is_completed = False
 
@@ -250,7 +241,7 @@ class GameSelectionWindow(QWidget):
         layout = QVBoxLayout()
 
         title_label = QLabel("Выберите игру")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet(
             "font-size: 20px; font-weight: bold; margin: 20px;"
         )
@@ -309,7 +300,7 @@ class AuthWindow(QWidget):
 
         self.login_password = QLineEdit()
         self.login_password.setPlaceholderText("Введите ваш пароль")
-        self.login_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.login_password.setEchoMode(QLineEdit.Password)
 
         self.login_button = QPushButton("Войти")
         self.login_button.clicked.connect(self.handle_login)
@@ -333,7 +324,7 @@ class AuthWindow(QWidget):
         self.reg_password.setPlaceholderText(
             "Придумайте пароль (минимум 6 символов)"
         )
-        self.reg_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.reg_password.setEchoMode(QLineEdit.Password)
 
         self.register_button = QPushButton("Зарегистрироваться")
         self.register_button.clicked.connect(self.handle_register)
@@ -367,7 +358,6 @@ class AuthWindow(QWidget):
 
         login_attempts = self.db.get_login_attempts(email)
 
-        # Если превышено количество попыток или это третья неудачная попытка
         if login_attempts >= self.max_attempts:
             self.current_email = email
             self.show_captcha_for_login()
@@ -376,7 +366,7 @@ class AuthWindow(QWidget):
         user = self.db.check_user(email, password)
 
         if user:
-            self.db.update_login_attempts(email, True)  # Сброс попыток
+            self.db.update_login_attempts(email, True)
             QMessageBox.information(
                 self, "Успех", f"Вход выполнен успешно, {user[1]}!"
             )
@@ -392,19 +382,16 @@ class AuthWindow(QWidget):
                     f"Неверный пароль. Осталось попыток: {remaining_attempts}",
                 )
             else:
-                # Это третья неудачная попытка - показываем капчу
                 self.current_email = email
                 self.show_captcha_for_login()
 
     def show_captcha_for_login(self):
-        """Показать капчу для входа после 3 неудачных попыток"""
         image_paths = ["1.png", "2.png", "3.png", "4.png"]
         self.captcha_window = CaptchaWidget(image_paths)
         self.captcha_window.on_success = self.on_login_captcha_success
         self.captcha_window.show()
 
     def on_login_captcha_success(self):
-        """Действие после успешного прохождения капчи при входе"""
         if self.current_email:
             self.db.update_login_attempts(self.current_email, True)
             QMessageBox.information(
@@ -415,7 +402,6 @@ class AuthWindow(QWidget):
             self.current_email = None
 
     def handle_register(self):
-        """Обработка регистрации с обязательной капчей"""
         name = self.reg_name.text().strip()
         email = self.reg_email.text().strip()
         password = self.reg_password.text().strip()
@@ -439,7 +425,6 @@ class AuthWindow(QWidget):
         self.show_captcha_for_registration(name, email, password)
 
     def show_captcha_for_registration(self, name, email, password):
-        """Показать капчу для регистрации"""
         image_paths = ["1.png", "2.png", "3.png", "4.png"]
         self.captcha_window = CaptchaWidget(image_paths)
         self.captcha_window.on_success = lambda: self.finalize_registration(
@@ -448,7 +433,6 @@ class AuthWindow(QWidget):
         self.captcha_window.show()
 
     def finalize_registration(self, name, email, password):
-        """Завершение регистрации после успешной капчи"""
         if self.db.register_user(name, email, password):
             QMessageBox.information(
                 self, "Успех", "Регистрация выполнена успешно!"
