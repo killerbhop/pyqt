@@ -30,11 +30,9 @@ class Database:
         conn.close()
 
     def hash_password(self, password):
-        """Хеширование пароля"""
         return hashlib.sha256(password.encode()).hexdigest()
 
     def register_user(self, name, email, password):
-        """Регистрация нового пользователя"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -54,14 +52,12 @@ class Database:
             conn.close()
             return True
         except sqlite3.IntegrityError:
-            # Пользователь с таким email уже существует
             return False
         except Exception as e:
             print(f"Ошибка при регистрации: {e}")
             return False
 
     def check_user(self, email, password):
-        """Проверка учетных данных пользователя"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -85,7 +81,6 @@ class Database:
             return None
 
     def user_exists(self, email):
-        """Проверка существования пользователя по email"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -105,7 +100,6 @@ class Database:
             cursor = conn.cursor()
 
             if success:
-                # Сброс счетчика при успешном входе
                 cursor.execute(
                     """
                     UPDATE users SET login_attempts = 0, last_attempt = ?
@@ -114,7 +108,6 @@ class Database:
                     (datetime.now().isoformat(), email),
                 )
             else:
-                # Увеличение счетчика при неудачной попытке
                 cursor.execute(
                     """
                     UPDATE users
@@ -132,7 +125,6 @@ class Database:
             return False
 
     def get_login_attempts(self, email):
-        """Получение количества неудачных попыток входа"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -147,3 +139,4 @@ class Database:
         except Exception as e:
             print(f"Ошибка при получении попыток входа: {e}")
             return 0
+
