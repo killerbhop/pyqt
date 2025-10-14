@@ -129,9 +129,8 @@ class Database:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
 
-            cursor.execute(
-                "SELECT login_attempts FROM users WHERE email = ?", (email,)
-            )
+            cursor.execute("SELECT login_attempts \
+                           FROM users WHERE email = ?", (email,))
             result = cursor.fetchone()
             conn.close()
 
@@ -139,4 +138,3 @@ class Database:
         except Exception as e:
             print(f"Ошибка при получении попыток входа: {e}")
             return 0
-
